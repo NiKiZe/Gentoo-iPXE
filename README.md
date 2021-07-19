@@ -37,4 +37,5 @@ Please see issue [#2](/../../issues/2) and https://bugs.gentoo.org/494300
 This is TODO, help welcome
 
 ## Simple testing
-TODO how to use qemu to easily test
+To test pcbios boot you can try `test_w_qemu.sh useonline`
+See [#4](/../../issues/4)
