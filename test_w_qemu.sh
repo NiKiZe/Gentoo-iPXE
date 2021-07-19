@@ -10,7 +10,8 @@ while (($#)); do
   case $1 in
   useefi)
     USEEFI=YES
-    efibios="-bios usr/share/edk2.git/ovmf-x64/OVMF-pure-efi.fd"
+    # >=sys-firmware/edk2-ovmf-202008
+    efibios="-bios /usr/share/edk2-ovmf/OVMF_CODE.fd"
     # TODO fix proper chain
     [ -f ipxe.efi ] || wget http://boot.ipxe.org/ipxe.efi
     bootfile="ipxe.efi"
