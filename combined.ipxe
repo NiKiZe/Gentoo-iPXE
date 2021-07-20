@@ -1,0 +1,16 @@
+#!ipxe
+initrd combined.igz
+# create with
+#(cat gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > combined.igz
+# simplest and fastest boot, but 390M file
+# or
+#(cat gentoo.igz; (echo image.squashfs | cpio -H newc -o | xz --check=crc32 -vT0)) > combined.igz
+# only compress squashfs, but black screen while decompressing, 360M file
+# or
+#(xz -d gentoo.igz -c; (echo image.squashfs | cpio -H newc -o)) | xz --check=crc32 -vT0 > combined.igz
+# recompress everything, black screen while decompressing, 359M file
+
+# cmdline initrd= is needed in efi mode
+kernel gentoo root=/dev/ram0 init=/linuxrc  keymap=se looptype=squashfs loop=/image.squashfs  cdroot vga=791 initrd=combined.igz panic=5
+
+boot
