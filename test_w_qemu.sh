@@ -1,6 +1,6 @@
 #!/bin/bash
 echo $0 Got arguments: $*
-bootfile="boot.ipxe"
+bootfile="combined.ipxe"
 
 USEEFI=""
 VNC="-vnc 127.0.0.1:22"
@@ -25,7 +25,7 @@ while (($#)); do
   ;;
   useonline)
     # iPXE which is default in qemu, supports http boot
-    bootfile="http://b800.org/gentoo/boot.ipxe"
+    bootfile="http://b800.org/gentoo/$bootfile"
   ;;
   direct)
     direct=("-kernel" "gentoo" "-initrd" "combined.igz" "-append" "root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot")
