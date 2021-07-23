@@ -1,4 +1,22 @@
+# binary files from ISO
+*.iso
 gentoo
-gentoo.igz
+*.igz
 image.squashfs
-install-amd64-minimal-20210711T170538Z.iso
+
+# iPXE binaries from http://boot.ipxe.org
+ipxe.efi
+snponly.efi
+undionly.kpxe
+ipxe.pxe
+
+# grub binaries from grub-mknetdir --net-directory .
+boot/grub/fonts/
+boot/grub/i386-pc/
+boot/grub/locale/
+boot/grub/themes/
+boot/grub/x86_64-efi/
+
+# pxelinux binaries from /usr/share/syslinux/
+ldlinux.c32
+pxelinux.0
