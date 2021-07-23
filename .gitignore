@@ -20,3 +20,6 @@ boot/grub/x86_64-efi/
 # pxelinux binaries from /usr/share/syslinux/
 ldlinux.c32
 pxelinux.0
+
+# Skip generated index
+index.html

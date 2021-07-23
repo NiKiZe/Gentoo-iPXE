@@ -37,6 +37,7 @@ cd gentoo_boot_cd || exit 1
 echo "Extracting iso"
 isoinfo -R -i ../$srciso -X || exit 1
 echo "Moving out needed files"
+(!(cmp boot/gentoo.igz ../gentoo.igz) || !(cmp image.squashfs ../image.squashfs)) && \
 (cat boot/gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > ../combined.igz
 mv -v image.squashfs ..
 mv -v boot/gentoo ..
@@ -49,3 +50,6 @@ rm -rf gentoo_boot_cd
 ipxekernel=$(grep "kernel gentoo " boot.ipxe | sed "s/^.*kernel gentoo /gentoo /")
 echo -e "Checking for cmdline in boot.ipxe:\n $ipxekernel"
 grep -q "$kernel" boot.ipxe && echo " - Looks good"
+
+# regenerate index
+sh gen_html_index.sh > index.html
