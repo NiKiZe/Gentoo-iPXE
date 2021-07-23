@@ -5,6 +5,8 @@ bootfile="boot.ipxe"
 USEEFI=""
 VNC="-vnc 127.0.0.1:22"
 VGA=""
+efibios=""
+direct=""
 POSITIONAL=()
 while (($#)); do
   case $1 in
@@ -24,6 +26,10 @@ while (($#)); do
   useonline)
     bootfile="http://b800.org/gentoo/boot.ipxe"
   ;;
+  direct)
+    direct=("-kernel" "gentoo" "-initrd" "combined.igz" "-append" "root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot")
+    bootfile=""
+  ;;
   *)
     POSITIONAL+=("$1") # save it in an array for later
   ;;
@@ -41,6 +47,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 netscript="-nic user,model=virtio,tftp=.,bootfile=$bootfile"
 
+
 set -x
 jn=$(nproc)
 qemu-system-x86_64 -enable-kvm -M q35 -m 2048 -cpu host -smp $jn,cores=$jn,sockets=1 -name lxgentoopxetest \
@@ -48,4 +55,5 @@ $netscript \
 -watchdog i6300esb -watchdog-action reset \
 -boot menu=on -usb ${VGA} ${VNC} \
 ${efibios} \
+"${direct[@]}" \
 $POSITIONAL
