@@ -6,7 +6,7 @@ USEEFI=""
 VNC="-vnc 127.0.0.1:22"
 VGA=""
 efibios=""
-direct=""
+direct=("-boot" "menu=on")
 POSITIONAL=()
 while (($#)); do
   case $1 in
@@ -24,6 +24,7 @@ while (($#)); do
     VGA="-nographic"
   ;;
   useonline)
+    # iPXE which is default in qemu, supports http boot
     bootfile="http://b800.org/gentoo/boot.ipxe"
   ;;
   direct)
@@ -53,7 +54,6 @@ jn=$(nproc)
 qemu-system-x86_64 -enable-kvm -M q35 -m 2048 -cpu host -smp $jn,cores=$jn,sockets=1 -name lxgentoopxetest \
 $netscript \
 -watchdog i6300esb -watchdog-action reset \
--boot menu=on -usb ${VGA} ${VNC} \
+"${direct[@]}" -usb ${VGA} ${VNC} \
 ${efibios} \
-"${direct[@]}" \
 $POSITIONAL
