@@ -1,0 +1,16 @@
+default gentoo
+timeout 150
+ontimeout localhost
+prompt 1
+
+label gentoo
+  kernel gentoo
+  append root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot initrd=combined.igz vga=791
+
+label gentoo-nofb
+  kernel gentoo
+  append root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot initrd=combined.igz
+
+label localhost
+  localboot -1
+  MENU HIDE

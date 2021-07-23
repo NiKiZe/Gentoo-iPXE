@@ -37,6 +37,7 @@ cd gentoo_boot_cd || exit 1
 echo "Extracting iso"
 isoinfo -R -i ../$srciso -X || exit 1
 echo "Moving out needed files"
+(cat boot/gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > ../combined.igz
 mv -v image.squashfs ..
 mv -v boot/gentoo ..
 mv -v boot/gentoo.igz ..
