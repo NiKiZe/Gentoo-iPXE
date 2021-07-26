@@ -11,24 +11,7 @@ for f in $srciso; do
 done
 echo Using $srciso as source
 
-ALLPOSITIONAL=()
-POSITIONAL=()
-KEYMAP=se
-mksquashoptions=""
-while (($#)); do
-  ALLPOSITIONAL+=("$1") # save it in an array for later
-  case $1 in
-  *)
-    # unknown arguments are passed thru
-    POSITIONAL+=("$1") # save it in an array for later
-  ;;
-  esac
-  shift
-done
-set -- "${POSITIONAL[@]}" # restore positional parameters
-ALLPOSITIONAL=${ALLPOSITIONAL[@]}
-
-echo emerge -uv1 cdrtools
+echo emerge -uv1 app-cdr/cdrtools
 set -x
 [ ! -d gentoo_boot_cd ] && (mkdir gentoo_boot_cd || exit 1)
 cd gentoo_boot_cd || exit 1
@@ -39,9 +22,9 @@ isoinfo -R -i ../$srciso -X || exit 1
 echo "Moving out needed files"
 (!(cmp boot/gentoo.igz ../gentoo.igz) || !(cmp image.squashfs ../image.squashfs)) && \
 (cat boot/gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > ../combined.igz
-mv -v image.squashfs ..
-mv -v boot/gentoo ..
-mv -v boot/gentoo.igz ..
+mv -vf image.squashfs ..
+mv -vf boot/gentoo ..
+mv -vf boot/gentoo.igz ..
 set +x
 kernel=$(grep gentoo grub/grub.cfg | grep root | grep -v docache | sed "s/^.*\/boot\/gentoo /gentoo /")
 echo -e "Official kernel cmdline:\n $kernel"
