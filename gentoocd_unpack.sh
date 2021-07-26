@@ -32,7 +32,10 @@ cd ..
 rm -rf gentoo_boot_cd
 ipxekernel=$(grep "kernel gentoo " boot.ipxe | sed "s/^.*kernel gentoo /gentoo /")
 echo -e "Checking for cmdline in boot.ipxe:\n $ipxekernel"
-grep -q "$kernel" boot.ipxe && echo " - Looks good"
+grep -q "$kernel" boot.ipxe && echo " - Looks good" || echo " - Might need update"
+ipxekernel=$(grep "kernel gentoo " combined.ipxe | sed "s/^.*kernel gentoo /gentoo /")
+echo -e "Checking for cmdline in combined.ipxe:\n $ipxekernel"
+grep -q "$kernel" combined.ipxe && echo " - Looks good" || echo " - Might need update"
 
 # regenerate index
 sh gen_html_index.sh > index.html

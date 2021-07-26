@@ -11,6 +11,7 @@ initrd combined.igz
 # recompress everything, black screen while decompressing, 359M file
 
 # cmdline initrd= is needed in efi mode
-kernel gentoo root=/dev/ram0 init=/linuxrc  keymap=se looptype=squashfs loop=/image.squashfs  cdroot vga=791 initrd=combined.igz panic=5
+kernel gentoo root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot vga=791 initrd=combined.igz
+# change dokeymap to keymap=us or other identifier for automated choice, other options available as well
 
 boot
