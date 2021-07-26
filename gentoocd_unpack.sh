@@ -12,24 +12,24 @@ done
 echo Using $srciso as source
 
 echo emerge -uv1 app-cdr/cdrtools
+echo "Extracting parts of iso ..."
 set -x
-[ ! -d gentoo_boot_cd ] && (mkdir gentoo_boot_cd || exit 1)
-cd gentoo_boot_cd || exit 1
 # 7z x is broken in version 16.02, it does work with 9.20
 # use isoinfo extraction from cdrtools instead
-echo "Extracting iso"
-isoinfo -R -i ../$srciso -X || exit 1
-echo "Moving out needed files"
-(!(cmp boot/gentoo.igz ../gentoo.igz) || !(cmp image.squashfs ../image.squashfs)) && \
-(cat boot/gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > ../combined.igz
-mv -vf image.squashfs ..
-mv -vf boot/gentoo ..
-mv -vf boot/gentoo.igz ..
+# -X keeps original mtime
+isoinfo -R -i $srciso -X -find -path /image.squashfs || exit 1
+isoinfo -R -i $srciso -X -find -path /boot/gentoo && mv -vf boot/gentoo .
+isoinfo -R -i $srciso -X -find -path /boot/gentoo.igz && mv -vf boot/gentoo.igz .
+(cat gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > combined.new.igz
+grubkernel=$(isoinfo -R -i $srciso -x /grub/grub.cfg | grep "gentoo.* root=" | grep -v docache)
 set +x
-kernel=$(grep gentoo grub/grub.cfg | grep root | grep -v docache | sed "s/^.*\/boot\/gentoo /gentoo /")
+echo "... extraction done"
+# only replace combined.igz if actually changed, to keep timestamps
+([ ! -e combined.igz ] || !(cmp -s combined.new.igz combined.igz)) && mv -f combined.new.igz combined.igz
+[ -e combined.new.igz ] && rm -f combined.new.igz
+
+kernel=$(echo "$grubkernel" | sed "s/^.*\/boot\/gentoo /gentoo /")
 echo -e "Official kernel cmdline:\n $kernel"
-cd ..
-rm -rf gentoo_boot_cd
 ipxekernel=$(grep "kernel gentoo " boot.ipxe | sed "s/^.*kernel gentoo /gentoo /")
 echo -e "Checking for cmdline in boot.ipxe:\n $ipxekernel"
 grep -q "$kernel" boot.ipxe && echo " - Looks good" || echo " - Might need update"
