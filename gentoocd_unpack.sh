@@ -28,7 +28,7 @@ echo "... extraction done"
 ([ ! -e combined.igz ] || !(cmp -s combined.new.igz combined.igz)) && mv -f combined.new.igz combined.igz
 [ -e combined.new.igz ] && rm -f combined.new.igz
 
-kernel=$(echo "$grubkernel" | sed "s/^.*\/boot\/gentoo /gentoo /")
+kernel=${grubkernel#*/boot/gentoo }
 echo -e "Official kernel cmdline:\n $kernel"
 ipxekernel=$(grep "kernel gentoo " boot.ipxe | sed "s/^.*kernel gentoo /gentoo /")
 echo -e "Checking for cmdline in boot.ipxe:\n $ipxekernel"
