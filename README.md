@@ -1,5 +1,7 @@
-# Gentoo-iPXE
+# [Gentoo-iPXE](https://github.com/NiKiZe/Gentoo-iPXE)
 Example on Minimal Gentoo PXE boot with focus on using [iPXE](http://ipxe.org)
+
+[![iPXE booting Gentoo sample screen](https://b800.org/3hxPu.png)](https://b800.org/3hxPu)
 
 ### Background
 This is to show and use how Gentoo can be booted over PXE since [Gentoo bug #396467](https://bugs.gentoo.org/396467) was resolved
