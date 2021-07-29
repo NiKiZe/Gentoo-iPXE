@@ -18,22 +18,17 @@
 
 # other files below will be loaded relative to this scripts path
 
-# http://ipxe.org/cmd/initrd
-initrd gentoo.igz
+# allow for external keymap setting
+isset ${keymap} || set keymap dokeymap
+# allow for external cmdline options
+isset ${cmdline} || set cmdline vga=791
 
 # http://ipxe.org/cmd/kernel
-# cmdline initrd= is needed in efi mode and uses https://github.com/ipxe/ipxe/commit/e5f02551735922eb235388bff08249a6f31ded3d
-# iPXE version before that commit should have initrd=gentoo.igz initrd=image.squashfs.cpio instead, also see below
-kernel gentoo root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot vga=791 initrd=initrd.magic
+# cmdline initrd= is needed in efi mode
+kernel gentoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=combined.igz ${cmdline}
 
-# Download the squashfs image, but have iPXE add CPIO header so that it is appended to the initramfs above
-# this makes it exist in the booted system
-# the second argument /image.squashfs is name of file inside cpio
-initrd image.squashfs /image.squashfs
-
-# For EFI this is needed: https://github.com/ipxe/ipxe/commit/e5f02551735922eb235388bff08249a6f31ded3d
-# workaround with old iPXE version: "echo image.squashfs | cpio -H newc -o > image.squashfs.cpio"
-# which also can be used to create a stage2 initrd for offline use
+# http://ipxe.org/cmd/initrd
+initrd combined.igz
 
 # boot the currently selected image (it was selected by the kernel line)
 boot

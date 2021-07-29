@@ -10,8 +10,13 @@ initrd combined.igz
 #(xz -d gentoo.igz -c; (echo image.squashfs | cpio -H newc -o)) | xz --check=crc32 -vT0 > combined.igz
 # recompress everything, black screen while decompressing, 359M file
 
+# allow for external keymap setting
+isset ${keymap} || set keymap dokeymap
+# allow for external cmdline options
+isset ${cmdline} || set cmdline vga=791
+
 # cmdline initrd= is needed in efi mode
-kernel gentoo root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot vga=791 initrd=combined.igz
+kernel gentoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=combined.igz ${cmdline}
 # change dokeymap to keymap=us or other identifier for automated choice, other options available as well
 
 boot
