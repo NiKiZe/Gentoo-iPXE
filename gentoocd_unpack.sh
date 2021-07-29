@@ -30,13 +30,12 @@ echo "... extraction done"
 
 kernel=${grubkernel#*/boot/gentoo }
 echo -e "Official kernel cmdline:\n $kernel"
-ipxekernel=$(grep "kernel gentoo " boot.ipxe | sed "s/^.*kernel gentoo /gentoo /")
 kernel=${kernel/dokeymap/\$\{keymap\}}
-echo -e "Checking for cmdline in boot.ipxe:\n $ipxekernel"
-grep -q "$kernel" boot.ipxe && echo " - Looks good" || echo " - Might need update"
-ipxekernel=$(grep "kernel gentoo " combined.ipxe | sed "s/^.*kernel gentoo /gentoo /")
-echo -e "Checking for cmdline in combined.ipxe:\n $ipxekernel"
-grep -q "$kernel" combined.ipxe && echo " - Looks good" || echo " - Might need update"
+for i in *.ipxe; do
+  ipxekernel=$(grep "kernel gentoo " "$i" | sed "s/^.*kernel gentoo /gentoo /")
+  echo -e "Checking for cmdline in $i:\n $ipxekernel"
+  grep -q "$kernel" "$i" && echo " - Looks good" || echo " - Might need update"
+done
 
 # regenerate index
 sh gen_html_index.sh > index.html
