@@ -1,0 +1,45 @@
+#!ipxe
+# please use discussions on https://github.com/NiKiZe/Gentoo-iPXE for questions
+
+# This method is the original where first initrd is loaded
+# and then squashfs is added to that via iPXE features
+# this file documents that process
+
+# other files below will be loaded relative to this scripts path
+# allow for external keymap setting
+isset ${keymap} || set keymap dokeymap
+# allow for external cmdline options
+isset ${cmdline} || set cmdline vga=791
+
+# http://ipxe.org/cmd/initrd
+initrd gentoo.igz
+
+# http://ipxe.org/cmd/kernel
+# cmdline initrd= is needed in efi mode and uses https://github.com/ipxe/ipxe/commit/e5f02551735922eb235388bff08249a6f31ded3d
+# iPXE version before that commit should have initrd=gentoo.igz initrd=image.squashfs.cpio instead, also see below
+kernel gentoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=initrd.magic ${cmdline}
+
+# Download the squashfs image, but have iPXE add CPIO header so that it is appended to the initramfs above
+# this makes it exist in the booted system
+# the second argument /image.squashfs is name of file inside cpio
+initrd image.squashfs /image.squashfs
+
+# For EFI this is needed: https://github.com/ipxe/ipxe/commit/e5f02551735922eb235388bff08249a6f31ded3d
+# workaround with old iPXE version: "echo image.squashfs | cpio -H newc -o > image.squashfs.cpio"
+# which also can be used to create a stage2 initrd for offline use
+
+# boot the currently selected image (it was selected by the kernel line)
+boot
+
+
+# The above multi initrd load should be identical to the first of the combined approach
+# one is client side, the other server side
+# create with
+#(cat gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > combined.igz
+# simplest and fastest boot, but 390M file
+# or
+#(cat gentoo.igz; (echo image.squashfs | cpio -H newc -o | xz --check=crc32 -vT0)) > combined.igz
+# only compress squashfs, but black screen while decompressing, 360M file
+# or
+#(xz -d gentoo.igz -c; (echo image.squashfs | cpio -H newc -o)) | xz --check=crc32 -vT0 > combined.igz
+# recompress everything, black screen while decompressing, 359M file
