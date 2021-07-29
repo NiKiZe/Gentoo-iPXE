@@ -19,4 +19,7 @@ isset ${cmdline} || set cmdline vga=791
 kernel gentoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=combined.igz ${cmdline}
 # change dokeymap to keymap=us or other identifier for automated choice, other options available as well
 
+# Let's see what we got
+imgstat
+
 boot

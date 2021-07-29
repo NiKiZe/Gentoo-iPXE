@@ -30,5 +30,8 @@ kernel gentoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/im
 # http://ipxe.org/cmd/initrd
 initrd combined.igz
 
+# Let's see what we got
+imgstat
+
 # boot the currently selected image (it was selected by the kernel line)
 boot

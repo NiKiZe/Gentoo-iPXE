@@ -28,6 +28,9 @@ initrd image.squashfs /image.squashfs
 # workaround with old iPXE version: "echo image.squashfs | cpio -H newc -o > image.squashfs.cpio"
 # which also can be used to create a stage2 initrd for offline use
 
+# Let's see what we got
+imgstat
+
 # boot the currently selected image (it was selected by the kernel line)
 boot
 
