@@ -2,7 +2,7 @@
 Example on Minimal Gentoo PXE boot with focus on using [iPXE](http://ipxe.org)
 
 ### Background
-This is to show and use how Gentoo can be booted over PXE since [#396467](https://bugs.gentoo.org/396467) was resolved
+This is to show and use how Gentoo can be booted over PXE since [Gentoo bug #396467](https://bugs.gentoo.org/396467) was resolved
 in [24ad50](https://github.com/gentoo/genkernel/commit/24ad5065fa856389ee9b058f57adffbe752da157)
 
 ## Quick start
@@ -20,10 +20,10 @@ If a file is referred to in a iPXE script, and not given as absolute path it tri
 
 #### Testing
 Script to simplify testing: [`test_w_qemu.sh useonline`](test_w_qemu.sh)
-See [Issue #4 for more work on EFI](/../../issues/4)
+See [Issue #4 for more work on EFI](https://github.com/NiKiZe/Gentoo-iPXE/issues/4)
 
 ## Having Gentoo mirrors host the needed files
-Working on this, See https://bugs.gentoo.org/494300 and [issue #2](/../../issues/2). There is also [forum post](https://forums.gentoo.org/viewtopic-p-8636881.html#8636881)
+Working on this, See [Gentoo bug #494300](https://bugs.gentoo.org/494300) and [issue #2](https://github.com/NiKiZe/Gentoo-iPXE/issues/2). There is also [forum post](https://forums.gentoo.org/viewtopic-p-8636881.html#8636881)
 
 ## Create your own mirror
 Grab or create [`boot.ipxe`](boot.ipxe) script with the minimal configuration.
@@ -54,7 +54,7 @@ Above server side generated `combined.igz` has been used. It is also possible to
 * `initrd image.squashfs /image.squashfs`
 Last initrd Appends squashfs with CPIO header to the ram data, the second argument tells which name to use in CPIO archive
 
-As mentioned `initrd=` is required in EFI mode, `initrd.magic` is a special file in iPXE EFI since [e5f025](https://github.com/ipxe/ipxe@e5f02551735922eb235388bff08249a6f31ded3d) that combines all initrd files into one CPIO archive, pcbios has done the same concatination for a long time.
+As mentioned `initrd=` is required in EFI mode, `initrd.magic` is a special file in iPXE EFI since [e5f025](https://github.com/ipxe/ipxe/commit/e5f02551735922eb235388bff08249a6f31ded3d) that combines all initrd files into one CPIO archive, pcbios has done the same concatination for a long time.
 
 ### [Different types of combine](combined.ipxe)
 * `(cat gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > combined.igz`
