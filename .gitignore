@@ -1,5 +1,6 @@
 # binary files from ISO
 *.iso
+*.iso.DIGESTS.asc
 gentoo
 *.igz
 image.squashfs
