@@ -14,7 +14,9 @@ for f in "${files[@]}"; do
 
 fsize=$(numfmt --to=iec --suffix=B --padding=6 $(stat --printf="%s" $f))
 fdate=$(stat --printf="%.19y" $f)
-if file -b $f | grep -q ASCII; then
+if [ $f == README.md ]; then
+  echo "$fsize $fdate $f"
+elif file -b $f | grep -q ASCII; then
   echo "$fsize $fdate <a href=\"$f\">$f</a>"
 else
   echo "$fsize $fdate $f"
