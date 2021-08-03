@@ -41,7 +41,35 @@ Needed services are BOOTP/DHCP and TFTP. Refer to these services individually.
 You might also want to have a HTTP server for better performance.
 "PXE server" might refer to the one machine that serves both of these services.
 #### TFTP service
-This is TODO, help welcome
+Install a simple to use tftp server
+```bash
+# install atftp
+emerge -uv1 net-ftp/atftp
+# ensure we have tftp root directory
+mkdir -p /tftproot
+# add it to startup
+rc-update add atftp default
+# make sure it is running
+/etc/init.d/atftp restart
+
+# move to tftp root directory
+pushd /tftproot
+# Prepare iPXE files
+for i in ipxe.efi snponly.efi undionly.kpxe ipxe.pxe; do wget -nc http://boot.ipxe.org/$i; done
+
+# Optional Prepare Grub
+grub-mknetdir --net-directory .
+
+# Optional Prepare pxelinux
+emerge -uv1 syslinux
+cp /usr/share/syslinux/pxelinux.0 .
+cp /usr/share/syslinux/ldlinux.c32 .
+
+# TODO copy over configs for grub/pxelinux
+
+popd
+```
+
 #### BOOTP/DHCP service
 Use one not both
 ##### isc-dhcpd

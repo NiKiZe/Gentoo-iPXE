@@ -2,6 +2,18 @@
 echo -e "<!doctype html>\n<html>"
 echo -e "<head><title>Gentoo minimal livecd over PXE, iPXE prefered</title>"
 echo -e "<meta charset=\"utf-8\"><meta name=viewport content=\"width=device-width, initial-scale=1\">"
+echo '<style>'
+echo 'body { font-family: system-ui; }'
+# https://github.com/richleland/pygments-css/blob/master/default.css
+echo 'code { background: #f0f0f0; }'
+echo '.codehilite { background: #f0f0f0; margin 0.1em }'
+echo '.codehilite .k { color: #008000; font-weight: bold } /* Keyword */'
+echo '.codehilite .o { color: #666666 } /* Operator */'
+echo '.codehilite .p { color: #101010 } /* Punctuation */'
+echo '.codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */'
+echo '.codehilite .nb { color: #008000 } /* Name.Builtin */'
+echo '.codehilite .nv { color: #19177c } /* Name.Variable */'
+echo '</style>'
 echo -e "</head><body>"
 echo 'See <a href="https://github.com/NiKiZe/Gentoo-iPXE">Gentoo iPXE on GitHub</a>'
 echo "<pre style=\"overflow:auto\">"
@@ -24,4 +36,8 @@ fi
 
 done
 echo "</pre>"
-markdown2 README.md || >&2 echo README.md conversion failed, emerge dev-python/markdown2 https://github.com/trentm/python-markdown2
+markdown2 -x fenced-code-blocks README.md || >&2 echo README.md conversion failed, emerge dev-python/markdown2 https://github.com/trentm/python-markdown2
+echo '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">'
+#-x highlightjs-lang
+#echo '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>'
+#echo '<script>hljs.highlightAll();</script>'
