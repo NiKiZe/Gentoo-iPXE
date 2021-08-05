@@ -4,8 +4,9 @@ echo -e "<head><title>Gentoo minimal livecd over PXE, iPXE prefered</title>"
 echo -e "<meta charset=\"utf-8\"><meta name=viewport content=\"width=device-width, initial-scale=1\">"
 echo '<style>'
 echo 'body { font-family: system-ui; }'
+echo 'div, p { max-width: 99%; overflow: auto; }'
 # https://github.com/richleland/pygments-css/blob/master/default.css
-echo 'code { background: #f0f0f0; }'
+echo 'code { background: #f0f0f0; overflow-wrap: anywhere; }'
 echo '.codehilite { background: #f0f0f0; margin 0.1em }'
 echo '.codehilite .k { color: #008000; font-weight: bold } /* Keyword */'
 echo '.codehilite .o { color: #666666 } /* Operator */'
