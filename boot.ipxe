@@ -1,20 +1,18 @@
 #!ipxe
 # Related to https://bugs.gentoo.org/396467
 # How to use:
-# * Download undionly.kpxe or ipxe.usb from boot.ipxe.org
-# * replace pxelinux.0 with undionly.kpxe, or even better modify dhcp server to point to undionly.kpxe instead
-# * set up http server that hosts this and the below files (http is faster then tftp)
+# * Download undionly.kpxe or ipxe.usb from http://boot.ipxe.org
+# * replace any pxelinux.0 with undionly.kpxe, or even better configure dhcpd to point to undionly.kpxe
+# * setup http server hosting this and the below files (http is faster then tftp)
 # * PXE boot a machine (or use usb image), and you should see iPXE start and a prompt for pressing Ctrl-B - do so
-# * type dhcp and press enter to get ip
-# * type chain http://server/boot.ipxe (this file) and press enter
-# For information about how to automate this process, see http://ipxe.org/howto/chainloading and http://ipxe.org/embed for alternatives
-# please use discussions on https://github.com/NiKiZe/Gentoo-iPXE for questions
+# * dhcp - to get ip
+# * chain http://server/boot.ipxe - (this file) to boot
+# https://github.com/NiKiZe/Gentoo-iPXE for more info, use discussions for questions
 
-# dnsmasq.conf example
-# dhcp-match=IPXEBOOT,175
-# dhcp-option=175,8:1:1
-# dhcp-boot=net:#IPXEBOOT,undionly.kpxe
-# dhcp-boot=net:IPXEBOOT,http://b800.org/gentoo/boot.ipxe
+# dnsmasq.conf minimal sample, see README for more details
+# dhcp-match=set:ipxe-ok,175,19
+# dhcp-boot=tag:!ipxe-ok,undionly.kpxe
+# dhcp-boot=tag:ipxe-ok,http://b800.org/gentoo/boot.ipxe
 
 # other files below will be loaded relative to this scripts path
 

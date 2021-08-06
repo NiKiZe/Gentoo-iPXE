@@ -71,11 +71,31 @@ popd
 ```
 
 #### BOOTP/DHCP service
-Use one not both
+Use one of these, not both
 ##### isc-dhcpd
 [This configuration](https://gist.github.com/robinsmidsrod/4008017) as a great start for iPXE, [official documentation](https://ipxe.org/howto/chainloading#breaking_the_infinite_loop) can also be helpful.
-##### dnsmasq
-This is TODO, help welcome, simple pcbios only example in [`boot.ipxe`](boot.ipxe)
+If you are in control of your DHCP server, then this is the best option.
+##### dnsmasq Proxy DHCP mode
+
+If you can not replace your DHCP server then you can instead run [Proxy DHCP](https://ipxe.org/appnote/proxydhcp).
+[Full configuration for dnsmasq in proxydhcp mode](https://gist.github.com/NiKiZe/5c181471b96ac37a069af0a76688944d)
+```bash
+# Disable DNS server
+port=0
+
+# Configure proxy mode and interface
+dhcp-range=${interface_subnet},proxy
+interface=${interface_name}
+
+# Enable PXE menu for non iPXE clients
+dhcp-match=set:ipxe-ok,175,19
+pxe-service=tag:!ipxe-ok,X86PC,PXE,undionly.kpxe,${tftp_server_ip}
+pxe-service=tag:!ipxe-ok,BC_EFI,PXE,snponly.efi,${tftp_server_ip}
+pxe-service=tag:!ipxe-ok,X86-64_EFI,PXE,snponly.efi,${tftp_server_ip}
+
+# Send script to valid iPXE clients
+dhcp-boot=tag:ipxe-ok,http://b800.org/gentoo/boot.ipxe,,0.0.0.1
+```
 
 ### [Alternative client side CPIO combine](altcombine.ipxe)
 Above server side generated `combined.igz` has been used. It is also possible to do this client side.
