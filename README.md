@@ -8,11 +8,11 @@ This is to show and use how Gentoo can be booted over PXE since [Gentoo bug #396
 in [24ad50](https://github.com/gentoo/genkernel/commit/24ad5065fa856389ee9b058f57adffbe752da157)
 
 ## Quick start
-Quick QEMU test: `qemu-system-x86_64 -enable-kvm -M q35 -m 1024 -cpu host -nic user,model=virtio,tftp=.,bootfile=http://b800.org/gentoo/boot.ipxe -boot menu=on -usb`
+Quick QEMU test: `qemu-system-x86_64 -enable-kvm -M q35 -m 1024 -cpu host -nic user,model=virtio,tftp=.,bootfile=http://gentoo.ipxe.se/boot.ipxe -boot menu=on -usb`
 This uses [iPXE](http://boot.ipxe.org), manual steps:
 * Get into the iPXE shell (from PXE boot or even from one of the disk images)
 * Get ip `dhcp`
-* Start Gentoo `chain http://b800.org/gentoo/boot.ipxe`
+* Start Gentoo `chain http://gentoo.ipxe.se/boot.ipxe`
 
 #### Explanation of ipxe script
 If a file is referred to in a iPXE script, and not given as absolute path it tries to load from the "last path"
@@ -94,7 +94,7 @@ pxe-service=tag:!ipxe-ok,BC_EFI,PXE,snponly.efi,${tftp_server_ip}
 pxe-service=tag:!ipxe-ok,X86-64_EFI,PXE,snponly.efi,${tftp_server_ip}
 
 # Send script to valid iPXE clients
-dhcp-boot=tag:ipxe-ok,http://b800.org/gentoo/boot.ipxe,,0.0.0.1
+dhcp-boot=tag:ipxe-ok,http://gentoo.ipxe.se/boot.ipxe,,0.0.0.1
 ```
 
 ### [Alternative client side CPIO combine](altcombine.ipxe)

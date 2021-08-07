@@ -25,7 +25,7 @@ while (($#)); do
   ;;
   useonline)
     # iPXE which is default in qemu, supports http boot
-    bootfile="http://b800.org/gentoo/$bootfile"
+    bootfile="http://gentoo.ipxe.se/$bootfile"
   ;;
   direct)
     direct=("-kernel" "gentoo" "-initrd" "combined.igz" "-append" "root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot")

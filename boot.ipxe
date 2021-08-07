@@ -12,7 +12,7 @@
 # dnsmasq.conf minimal sample, see README for more details
 # dhcp-match=set:ipxe-ok,175,19
 # dhcp-boot=tag:!ipxe-ok,undionly.kpxe
-# dhcp-boot=tag:ipxe-ok,http://b800.org/gentoo/boot.ipxe
+# dhcp-boot=tag:ipxe-ok,http://gentoo.ipxe.se/boot.ipxe
 
 # other files below will be loaded relative to this scripts path
 
