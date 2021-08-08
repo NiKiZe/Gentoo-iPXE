@@ -1,7 +1,10 @@
 #!/bin/bash
 echo -e "<!doctype html>\n<html>"
 echo -e "<head><title>Gentoo minimal livecd over PXE, iPXE prefered</title>"
-echo -e "<meta charset=\"utf-8\"><meta name=viewport content=\"width=device-width, initial-scale=1\">"
+echo -e "<meta charset=\"utf-8\" /><meta name=viewport content=\"width=device-width, initial-scale=1\" />"
+echo -e '<link rel="canonical" href="https://gentoo.ipxe.se/" />'
+echo -e '<link rel="icon" href="res/favicon.svg" />'
+echo '<meta property="og:image" content="https://b800.org/3hf9U.png">'
 echo '<style>'
 echo 'body { font-family: system-ui; }'
 echo 'div, p { max-width: 99%; overflow: auto; }'
@@ -14,9 +17,19 @@ echo '.codehilite .p { color: #101010 } /* Punctuation */'
 echo '.codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */'
 echo '.codehilite .nb { color: #008000 } /* Name.Builtin */'
 echo '.codehilite .nv { color: #19177c } /* Name.Variable */'
+echo '@media (prefers-color-scheme: dark) {'
+echo '  body {'
+echo '    color: #ccc;'
+echo '    background: #121212;'
+echo '  }'
+echo '  a {color: #809fff;}'
+echo '  code, .codehilite { background: #232323; }'
+echo '  .codehilite .p { color: #404040 } /* Punctuation */'
+echo '  .codehilite .nv { color: #1917fc } /* Name.Variable */'
+echo '}'
 echo '</style>'
 echo -e "</head><body>"
-echo 'See <a href="https://github.com/NiKiZe/Gentoo-iPXE">Gentoo iPXE on GitHub</a>'
+markdown2 -x fenced-code-blocks README.md || >&2 echo README.md conversion failed, emerge dev-python/markdown2 https://github.com/trentm/python-markdown2
 echo "<pre style=\"overflow:auto\">"
 thisscript=$(basename "$0")
 #FILES="gentoo gentoo.igz combined.igz image.squashfs *.iso $(git ls-files)"
@@ -37,7 +50,6 @@ fi
 
 done
 echo "</pre>"
-markdown2 -x fenced-code-blocks README.md || >&2 echo README.md conversion failed, emerge dev-python/markdown2 https://github.com/trentm/python-markdown2
 echo '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">'
 #-x highlightjs-lang
 #echo '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>'
