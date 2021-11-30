@@ -115,3 +115,5 @@ As mentioned `initrd=` is required in EFI mode, `initrd.magic` is a special file
   - recompress everything, ~359M file, black screen while decompressing
 
 TODO investigate memory usage, what is the best way for the kernel in terms of free memory?
+
+<img src="https://ipv6.b800.org/ipv6.svg" style="height: 1rem; vertical-align:middle; " />
