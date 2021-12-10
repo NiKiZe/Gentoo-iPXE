@@ -33,8 +33,7 @@ markdown2 -x fenced-code-blocks README.md || >&2 echo README.md conversion faile
 echo "<pre style=\"overflow:auto\">"
 thisscript=$(basename "$0")
 #FILES="gentoo gentoo.igz combined.igz image.squashfs *.iso $(git ls-files)"
-readarray -d '' files < <(printf '%s\0' gentoo gentoo.igz combined.igz image.squashfs *.iso $(git ls-files) | sort -zV)
-for f in "${files[@]}"; do
+printf '%s\0' gentoo gentoo.igz combined.igz image.squashfs *.iso $(git ls-files) | sort -zV | while IFS='' read -rd '' f; do
 [ $f == .gitignore ] && continue
 [ $f == $thisscript ] && continue
 
