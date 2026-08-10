@@ -6,6 +6,7 @@ Example on Minimal Gentoo PXE boot with focus on using [iPXE](http://ipxe.org)
 ### Background
 This is to show and use how Gentoo can be booted over PXE since [Gentoo bug #396467](https://bugs.gentoo.org/396467) was resolved
 in [24ad50](https://github.com/gentoo/genkernel/commit/24ad5065fa856389ee9b058f57adffbe752da157)
+. Unfortunatly there was later a move to Dracut, and some things changed, [See #11](https://github.com/NiKiZe/Gentoo-iPXE/issues/11)
 
 ## Quick start
 Quick QEMU test: `qemu-system-x86_64 -enable-kvm -M q35 -m 1024 -cpu host -nic user,model=virtio,tftp=.,bootfile=http://gentoo.ipxe.se/boot.ipxe -boot menu=on -usb`
@@ -16,8 +17,9 @@ This uses [iPXE](http://boot.ipxe.org), manual steps:
 
 #### Explanation of ipxe script
 If a file is referred to in a iPXE script, and not given as absolute path it tries to load from the "last path"
-* `kernel gentoo dokeymap looptype=squashfs loop=/image.squashfs cdroot initrd=initrd.magic vga=791` - download gentoo kernel image, and append standard cmdline as seen in isolinux/grub, the initrd= is required for the kernel to find the init file in EFI mode boot
-* `initrd combined.igz` - downloads combined.igz into memory - you can give the full path over http or tftp if you want to.
+* `kernel gentoo dokeymap looptype=squashfs loop=/image.squashfs cdroot` - download gentoo kernel image, and append standard cmdline as seen in isolinux/grub, (initrd= was required in older iPXE/kernels for EFI)
+* `initrd gentoo.igz` - base initrd into memory - you can give the full path over http or tftp if you want to.
+* `initrd image.squashfs /image.squashfs` - append squashfs into initrd
 * `boot` - boot
 
 #### Testing
@@ -97,16 +99,16 @@ pxe-service=tag:!ipxe-ok,X86-64_EFI,PXE,snponly.efi,${tftp_server_ip}
 dhcp-boot=tag:ipxe-ok,http://gentoo.ipxe.se/boot.ipxe,,0.0.0.1
 ```
 
-### [Alternative client side CPIO combine](altcombine.ipxe)
-Above server side generated `combined.igz` has been used. It is also possible to do this client side.
+### Client side CPIO combine
+Older iPXE, especially in EFI mode, could not do this, but that is old now, so this is the default.
 * `initrd gentoo.igz`
-* `kernel gentoo {insert options} initrd=initrd.magic`
+* `kernel gentoo {insert options}` - (older version of iPXE and/or kernel required initrd=initrd.magic
 * `initrd image.squashfs /image.squashfs`
 Last initrd Appends squashfs with CPIO header to the ram data, the second argument tells which name to use in CPIO archive
 
-As mentioned `initrd=` is required in EFI mode, `initrd.magic` is a special file in iPXE EFI since [e5f025](https://github.com/ipxe/ipxe/commit/e5f02551735922eb235388bff08249a6f31ded3d) that combines all initrd files into one CPIO archive, pcbios has done the same concatination for a long time.
+As mentioned `initrd=` was required in EFI mode, `initrd.magic` is a special file in iPXE EFI since [e5f025](https://github.com/ipxe/ipxe/commit/e5f02551735922eb235388bff08249a6f31ded3d) that combines all initrd files into one CPIO archive, pcbios has done the same concatination for a long time.
 
-### [Different types of combine](combined.ipxe)
+### Different types of combine - for historys sake
 * `(cat gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > combined.igz`
   - simplest and fastest boot, ~390M file
 * `(cat gentoo.igz; (echo image.squashfs | cpio -H newc -o | xz --check=crc32 -vT0)) > combined.igz`

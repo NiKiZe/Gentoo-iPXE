@@ -6,8 +6,8 @@
 # * setup http server hosting this and the below files (http is faster then tftp)
 # * PXE boot a machine (or use usb image), and you should see iPXE start and a prompt for pressing Ctrl-B - do so
 # * dhcp - to get ip
-# * chain http://server/boot.ipxe - (this file) to boot
-# https://github.com/NiKiZe/Gentoo-iPXE for more info, use discussions for questions
+# * chain http://gentoo.ipxe.se/boot.ipxe - (this file) to boot
+# please use discussions on https://github.com/NiKiZe/Gentoo-iPXE for questions
 
 # dnsmasq.conf minimal sample, see README for more details
 # dhcp-match=set:ipxe-ok,175,19
@@ -19,14 +19,18 @@
 # allow for external keymap setting
 isset ${keymap} || set keymap dokeymap
 # allow for external cmdline options
-isset ${cmdline} || set cmdline vga=791 net.ifnames=0
+isset ${cmdline} || set cmdline vga=791
 
 # http://ipxe.org/cmd/kernel
-# cmdline initrd= is needed in efi mode
-kernel gentoo ${keymap} looptype=squashfs loop=/image.squashfs cdroot initrd=combined.igz ${cmdline}
+kernel gentoo ${keymap} looptype=squashfs loop=/image.squashfs cdroot net.ifnames=0 ${cmdline}
 
 # http://ipxe.org/cmd/initrd
-initrd combined.igz
+initrd gentoo.igz
+
+# Download the squashfs image, iPXE adds CPIO header so that it is appended to the initramfs above
+# this makes it exist in the booted system
+# the second argument /image.squashfs is name of file inside cpio
+initrd image.squashfs /image.squashfs
 
 # Let's see what we got
 imgstat

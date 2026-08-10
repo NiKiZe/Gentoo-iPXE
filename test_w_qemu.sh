@@ -1,6 +1,6 @@
 #!/bin/bash
 echo $0 Got arguments: $*
-bootfile="combined.ipxe"
+bootfile="boot.ipxe"
 
 USEEFI=""
 VNC="-vnc 127.0.0.1:22"
@@ -31,6 +31,7 @@ while (($#)); do
   ;;
   direct)
     # TODO if serial add console
+    (cat gentoo.igz; (echo image.squashfs | cpio -H newc -o)) > combined.igz
     POSITIONAL+=("-kernel" "gentoo" "-initrd" "combined.igz" "-append" "dokeymap looptype=squashfs loop=/image.squashfs cdroot")
     bootfile=""
   ;;
