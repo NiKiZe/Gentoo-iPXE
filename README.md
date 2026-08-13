@@ -16,7 +16,7 @@ This uses [iPXE](http://boot.ipxe.org), manual steps:
 
 #### Explanation of ipxe script
 If a file is referred to in a iPXE script, and not given as absolute path it tries to load from the "last path"
-* `kernel gentoo root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot initrd=initrd.magic vga=791` - download gentoo kernel image, and append standard cmdline as seen in isolinux/grub, the initrd= is required for the kernel to find the init file in EFI mode boot
+* `kernel gentoo dokeymap looptype=squashfs loop=/image.squashfs cdroot initrd=initrd.magic vga=791` - download gentoo kernel image, and append standard cmdline as seen in isolinux/grub, the initrd= is required for the kernel to find the init file in EFI mode boot
 * `initrd combined.igz` - downloads combined.igz into memory - you can give the full path over http or tftp if you want to.
 * `boot` - boot
 

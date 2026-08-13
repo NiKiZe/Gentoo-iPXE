@@ -5,11 +5,11 @@ prompt 1
 
 label gentoo
   kernel gentoo
-  append root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot initrd=combined.igz vga=791
+  append dokeymap looptype=squashfs loop=/image.squashfs cdroot initrd=combined.igz vga=791
 
 label gentoo-nofb
   kernel gentoo
-  append root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot initrd=combined.igz
+  append dokeymap looptype=squashfs loop=/image.squashfs cdroot initrd=combined.igz
 
 label localhost
   localboot -1

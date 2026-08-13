@@ -13,10 +13,10 @@ initrd combined.igz
 # allow for external keymap setting
 isset ${keymap} || set keymap dokeymap
 # allow for external cmdline options
-isset ${cmdline} || set cmdline vga=791
+isset ${cmdline} || set cmdline vga=791 net.ifnames=0
 
 # cmdline initrd= is needed in efi mode
-kernel gentoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=combined.igz ${cmdline}
+kernel gentoo ${keymap} looptype=squashfs loop=/image.squashfs cdroot initrd=combined.igz ${cmdline}
 # change dokeymap to keymap=us or other identifier for automated choice, other options available as well
 
 # Let's see what we got

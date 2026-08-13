@@ -19,11 +19,11 @@
 # allow for external keymap setting
 isset ${keymap} || set keymap dokeymap
 # allow for external cmdline options
-isset ${cmdline} || set cmdline vga=791
+isset ${cmdline} || set cmdline vga=791 net.ifnames=0
 
 # http://ipxe.org/cmd/kernel
 # cmdline initrd= is needed in efi mode
-kernel gentoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=combined.igz ${cmdline}
+kernel gentoo ${keymap} looptype=squashfs loop=/image.squashfs cdroot initrd=combined.igz ${cmdline}
 
 # http://ipxe.org/cmd/initrd
 initrd combined.igz
