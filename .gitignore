@@ -24,3 +24,7 @@ pxelinux.0
 
 # Skip generated index
 index.html
+
+# Skip test files
+autoexec.ipxe
+kvm_lxgentootest_VARS.fd
