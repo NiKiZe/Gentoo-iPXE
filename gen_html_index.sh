@@ -33,18 +33,19 @@ markdown2 -x fenced-code-blocks README.md || >&2 echo README.md conversion faile
 echo "<pre style=\"overflow:auto\">"
 thisscript=$(basename "$0")
 #FILES="gentoo gentoo.igz combined.igz image.squashfs *.iso $(git ls-files)"
-printf '%s\0' gentoo gentoo.igz combined.igz image.squashfs *.iso $(git ls-files) | sort -zV | while IFS='' read -rd '' f; do
+printf '%s\0' gentoo *-gentoo gentoo.igz *-gentoo.igz combined.igz *-combined.igz image.squashfs *-image.squashfs *.iso *Z.sha512 *minimal*Z.ipxe latest.ipxe $(git ls-files) | sort -zV | while IFS='' read -rd '' f; do
 [ $f == .gitignore ] && continue
 [ $f == $thisscript ] && continue
 
-fsize=$(numfmt --to=iec --suffix=B --padding=6 $(stat --printf="%s" $f))
-fdate=$(stat --printf="%.19y" $f)
+IFS=$'\t' read -r fsize fdate fnlink < <(stat --printf "%s\t%.19y\t%N\n" $f)
+fsize=$(numfmt --to=iec --suffix=B --padding=6 $fsize)
+[[ "$fnlink" == *" -> "* ]] && flink=" -&gt; $(readlink $f)" || flink=""
 if [ $f == README.md ]; then
   echo "$fsize $fdate $f"
-elif file -b $f | grep -q ASCII; then
-  echo "$fsize $fdate <a href=\"$f\">$f</a>"
+elif file -b $f | grep -q "ASCII text"; then
+  echo "$fsize $fdate <a href=\"$f\">$f</a>$flink"
 else
-  echo "$fsize $fdate $f"
+  echo "$fsize $fdate $f$flink"
 fi
 
 done

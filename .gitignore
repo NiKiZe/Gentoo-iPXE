@@ -1,6 +1,5 @@
 # binary files from ISO
-*.iso
-*.iso.DIGESTS.asc
+install-*-minimal-*
 gentoo
 *.igz
 image.squashfs
@@ -24,6 +23,8 @@ pxelinux.0
 
 # Skip generated index
 index.html
+index.bak.html
+latest.ipxe
 
 # Skip test files
 autoexec.ipxe
