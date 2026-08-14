@@ -22,7 +22,8 @@ isset ${keymap} || set keymap dokeymap
 isset ${cmdline} || set cmdline vga=791
 
 # http://ipxe.org/cmd/kernel
-kernel gentoo ${keymap} looptype=squashfs loop=/image.squashfs cdroot net.ifnames=0 ${cmdline}
+# Right now this cmdline is verbose to cover both Dracut and pre-Dracut images
+kernel gentoo ${keymap} looptype=squashfs loop=/image.squashfs.img nodhcp root=live:/image.squashfs.img cdroot net.ifnames=0 ${cmdline}
 
 # http://ipxe.org/cmd/initrd
 initrd gentoo.igz
@@ -30,7 +31,7 @@ initrd gentoo.igz
 # Download the squashfs image, iPXE adds CPIO header so that it is appended to the initramfs above
 # this makes it exist in the booted system
 # the second argument /image.squashfs is name of file inside cpio
-initrd image.squashfs /image.squashfs
+initrd image.squashfs /image.squashfs.img
 
 # Let's see what we got
 imgstat

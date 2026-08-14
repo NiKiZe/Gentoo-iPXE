@@ -84,12 +84,20 @@ done
 [ -e combined.new.igz ] && rm -f combined.new.igz
 
 grubkernel=$(isoinfo -j UTF-8 -R -i ${isoname} -x /boot/grub/grub.cfg | grep "linux /boot" | grep -v \
- -e docache)
+ -e docache \
+ -e "rd.live.ram=1" \
+ -e dospeakup)
 
 set +x
 echo " ... extraction done"
 [[ -z "$grubkernel" ]] && eerror "No kernel info from grub.cfg found"
 kernel=${grubkernel#*/boot/gentoo }
+sqfs_ext=
+if [[ "$grubkernel" == *"root=live:"* ]]; then
+    einfo "Dracut-based ISO detected. Applying live image modifications."
+    kernel=$(sed 's#root=live:[^ ]*#root=live:/image.squashfs.img#' <<< "${kernel}")
+    sqfs_ext=".img"
+fi
 einfo "Official kernel cmdline:$nl     $kernel"
 kernel=${kernel/dokeymap/\$\{keymap\}}
 cat > ${isobase}.ipxe << EOF
@@ -98,7 +106,7 @@ isset \${keymap} || set keymap dokeymap
 isset \${cmdline} || set cmdline
 kernel ${isobase}-gentoo ${kernel} net.ifnames=0 \${cmdline}
 initrd ${isobase}-gentoo.igz
-initrd ${isobase}-image.squashfs /image.squashfs
+initrd ${isobase}-image.squashfs /image.squashfs$sqfs_ext
 imgstat
 boot
 EOF

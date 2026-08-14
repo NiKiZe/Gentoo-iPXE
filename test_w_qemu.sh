@@ -6,10 +6,14 @@ USEEFI=""
 VNC="-vnc 127.0.0.1:22"
 VGA=""
 efibios=""
-memorygb=2
+memorygb=4
 POSITIONAL=()
 while (($#)); do
   case $1 in
+  -bootfile)
+    shift
+    bootfile=$1
+  ;;
   useefi)
     USEEFI=YES
     cp /usr/share/edk2-ovmf/OVMF_VARS.fd kvm_lxgentootest_VARS.fd
