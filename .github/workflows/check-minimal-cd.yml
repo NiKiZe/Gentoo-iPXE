@@ -1,0 +1,171 @@
+name: Check and Build Gentoo iPXE
+
+on:
+  schedule:
+    - cron: '45 8-12 * * 0'
+    - cron: '50 */12 * * *'
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  GENTOO_CACHE_PATHS: |
+    install-amd64-minimal-*
+    index.html
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    outputs:
+      latest_version: ${{ steps.get-version.outputs.version }}
+      tag_exists: ${{ steps.check-tag.outputs.exists }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Determine Latest Gentoo Version
+        id: get-version
+        run: |
+          DISTMIRROR=http://distfiles.gentoo.org
+          DISTBASE=${DISTMIRROR}/releases/amd64/autobuilds/current-install-amd64-minimal/
+          VERSION=$(curl -v -L \
+            ${DISTBASE}latest-install-amd64-minimal.txt | grep 'install-.*iso' | awk '{print $1}')
+          VERSION="${VERSION%.iso}"
+          echo "LATEST_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if Git Tag Already Exists
+        id: check-tag
+        run: |
+          if git rev-parse "refs/tags/${{ env.LATEST_VERSION }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+            echo "Version ${{ env.LATEST_VERSION }} has already been tagged and released."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Cache generated
+        if: env.TAG_EXISTS == 'false'
+        id: cache-gentoo
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.GENTOO_CACHE_PATHS }}
+          key: gentoo-ipxe-${{ env.LATEST_VERSION }}
+
+      - name: Get working version of isoinfo and other tools installed
+        if: env.TAG_EXISTS == 'false' && steps.cache-gentoo.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update && sudo apt-get install -y build-essential wget bzip2 pv python3-markdown2
+          wget -qO- https://codeberg.org/schilytools/schilytools/releases/download/2024-03-21/schily-2024-03-21.tar.bz2 | tar -xj
+          pushd schily-*/
+          gmake GMAKE_NOWARN=true -j$(nproc) targets="smake mkisofs"
+          sudo cp $(find -name isoinfo -type f | head -n 1) /usr/bin/isoinfo
+
+      - name: Execute Download and Unpack Routines
+        if: env.TAG_EXISTS == 'false' && steps.cache-gentoo.outputs.cache-hit != 'true'
+        run: |
+          ./get_minimal_cd.sh || exit 1
+          ./gentoocd_unpack.sh || exit 1
+          ls -l
+          cat index.html
+
+  test:
+    runs-on: ubuntu-latest
+    needs: generate
+    if: needs.generate.outputs.tag_exists == 'false'
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [pcbios, efi]
+        include:
+          - mode: pcbios
+            test_args: "serial"
+          - mode: efi
+            test_args: "serial useefi"
+
+    name: Test VM (${{ matrix.mode }})
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Initialize QEMU and System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 ovmf
+          sudo chmod 666 /dev/kvm
+          [[ "${{ matrix.mode }}" == "efi" ]] && sudo ln -s /usr/share/OVMF /usr/share/edk2-ovmf || true
+          [[ "${{ matrix.mode }}" == "efi" ]] && sudo ln -s /usr/share/edk2-ovmf/OVMF_CODE_4M.fd /usr/share/edk2-ovmf/OVMF_CODE.fd || true
+          [[ "${{ matrix.mode }}" == "efi" ]] && sudo ln -s /usr/share/edk2-ovmf/OVMF_VARS_4M.fd /usr/share/edk2-ovmf/OVMF_VARS.fd || true
+
+      - name: Restore Work Directory Cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.GENTOO_CACHE_PATHS }}
+          key: gentoo-ipxe-${{ needs.generate.outputs.latest_version }}
+
+      - name: Execute Virtual Machine Runtime Validation
+        run: |
+          echo "Booting validation matrix via ${{ matrix.mode }} ..."
+          cat install-amd64-minimal-*.ipxe > boot.ipxe
+          sed -i 's/dokeymap/keymap=us/' boot.ipxe
+          cat boot.ipxe
+          {
+          while IFS= read -r line; do
+            printf "[%s %02d:%02d] %s\n" "${{ matrix.mode }}" $((SECONDS / 60)) $((SECONDS % 60)) "$line"
+            if [[ "$line" == *"Welcome to the Gentoo Linux Minimal Installation CD"* ]]; then
+              echo "🎯 Success string OK"
+              exit 0
+            fi
+          done < <(time ./test_w_qemu.sh ${{ matrix.test_args }} 2>&1)
+          exit 1
+          } &
+          JOB_PID=$!
+          (sleep 300; kill $JOB_PID 2>/dev/null) &
+          TIMEOUT_PID=$!
+          if ! wait $JOB_PID; then
+            kill $TIMEOUT_PID 2>/dev/null || true
+            echo "❌ FAIL not booted ok within 300-second window."
+            exit 1
+          fi
+          kill $TIMEOUT_PID 2>/dev/null || true
+
+  publish-release:
+    runs-on: ubuntu-latest
+    needs: [generate, test]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Restore Asset Binaries from Target Cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.GENTOO_CACHE_PATHS }}
+          key: gentoo-ipxe-${{ needs.generate.outputs.latest_version }}
+
+      - name: Build Release
+        run: |
+          VERSION="${{ needs.generate.outputs.latest_version }}"
+          echo "Tagging repository and deploying production release assets for version: $VERSION"
+          set -x
+
+          ls -l
+          mapfile -t ASSETS <<< "${{ env.GENTOO_CACHE_PATHS }}"
+          RELEASE_FILES=()
+          for expanded in ${ASSETS[@]}; do
+            case "$expanded" in
+              *)
+                RELEASE_FILES+=("$expanded")
+                ;;
+            esac
+          done
+
+          ls -l "${RELEASE_FILES[@]}"
+          gh release create "$VERSION" "${RELEASE_FILES[@]}" \
+            --repo "${{ github.repository }}" \
+            --title "Gentoo $VERSION" \
+            --notes "Automated test ok of Gentoo $VERSION"

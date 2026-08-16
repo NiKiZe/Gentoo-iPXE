@@ -123,6 +123,6 @@ for i in boot.ipxe; do
 done
 
 # regenerate index
-cp index.html index.bak.html
-sh gen_html_index.sh > index.html
-diff -u index.bak.html index.html
+cp index.html index.bak.html || true
+./gen_html_index.sh > index.html || true
+diff -u index.bak.html index.html || true
