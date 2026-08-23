@@ -2,8 +2,8 @@ name: Check and Build Gentoo iPXE
 
 on:
   schedule:
-    - cron: '45 8-12 * * 0'
-    - cron: '50 */12 * * *'
+    - cron: '45 17-23 * * 0'
+    - cron: '55 */6 * * *'
   push:
   workflow_dispatch:
 
@@ -122,7 +122,7 @@ jobs:
               echo "🎯 Success string OK"
               exit 0
             fi
-          done < <(time ./test_w_qemu.sh ${{ matrix.test_args }} 2>&1)
+          done < <(./test_w_qemu.sh ${{ matrix.test_args }} 2>&1)
           exit 1
           } &
           JOB_PID=$!
@@ -154,6 +154,8 @@ jobs:
           set -x
 
           ls -l
+          sha512sum -c $VERSION.sha512 || exit 1
+          sha512sum $VERSION* | sed /sha512$/d > $VERSION.sha512
           mapfile -t ASSETS <<< "${{ env.GENTOO_CACHE_PATHS }}"
           RELEASE_FILES=()
           for expanded in ${ASSETS[@]}; do
