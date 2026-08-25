@@ -53,7 +53,7 @@ jobs:
       - name: Cache generated
         if: env.TAG_EXISTS == 'false'
         id: cache-gentoo
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ env.GENTOO_CACHE_PATHS }}
           key: gentoo-ipxe-${{ env.LATEST_VERSION }}
@@ -104,7 +104,7 @@ jobs:
           [[ "${{ matrix.mode }}" == "efi" ]] && sudo ln -s /usr/share/edk2-ovmf/OVMF_VARS_4M.fd /usr/share/edk2-ovmf/OVMF_VARS.fd || true
 
       - name: Restore Work Directory Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ env.GENTOO_CACHE_PATHS }}
           key: gentoo-ipxe-${{ needs.generate.outputs.latest_version }}
@@ -142,7 +142,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Restore Asset Binaries from Target Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ env.GENTOO_CACHE_PATHS }}
           key: gentoo-ipxe-${{ needs.generate.outputs.latest_version }}
