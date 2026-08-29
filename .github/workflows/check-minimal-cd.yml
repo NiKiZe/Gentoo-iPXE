@@ -155,6 +155,7 @@ jobs:
 
           ls -l
           sha512sum -c $VERSION.sha512 || exit 1
+          sed -i -e '/^imgstat/d' -e '/^boot/d' install-amd64-minimal-*.ipxe
           sha512sum $VERSION* | sed /sha512$/d > $VERSION.sha512
           mapfile -t ASSETS <<< "${{ env.GENTOO_CACHE_PATHS }}"
           RELEASE_FILES=()
