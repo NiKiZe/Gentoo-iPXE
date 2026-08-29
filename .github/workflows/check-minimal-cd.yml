@@ -113,6 +113,8 @@ jobs:
         run: |
           echo "Booting validation matrix via ${{ matrix.mode }} ..."
           cat install-amd64-minimal-*.ipxe > boot.ipxe
+          echo "imgstat" >> boot.ipxe
+          echo "boot" >> boot.ipxe
           sed -i 's/dokeymap/keymap=us/' boot.ipxe
           cat boot.ipxe
           {
@@ -167,8 +169,25 @@ jobs:
             esac
           done
 
+          RELEASE_NOTES="release_notes.md"
+          {
+          cat << 'EOF'
+          Automated test ok of Gentoo $VERSION
+          # Note that `boot` is required after chain, since that is no longer included in the script, current contents:
+          ```ipxe
+          EOF
+          cat install-amd64-minimal-*.ipxe
+          cat << 'EOF'
+          ```
+          Use `chain ....ipxe` followed by maybe `imgstat` and `boot`
+          It does allow for additional initrd before boot
+          EOF
+          } > "$RELEASE_NOTES"
+
+          set -x
+          cat "$RELEASE_NOTES" | tee -a "$GITHUB_STEP_SUMMARY"
           ls -l "${RELEASE_FILES[@]}"
           gh release create "$VERSION" "${RELEASE_FILES[@]}" \
             --repo "${{ github.repository }}" \
             --title "Gentoo $VERSION" \
-            --notes "Automated test ok of Gentoo $VERSION"
+            --notes-file "$RELEASE_NOTES"
