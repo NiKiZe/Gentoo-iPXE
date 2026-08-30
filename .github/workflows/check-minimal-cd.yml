@@ -20,7 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       latest_version: ${{ steps.get-version.outputs.version }}
-      tag_exists: ${{ steps.check-tag.outputs.exists }}
+      dobuild: ${{ steps.check-tag.outputs.dobuild }}
+      dorelease: ${{ steps.check-tag.outputs.dorelease }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -41,17 +42,21 @@ jobs:
       - name: Check if Git Tag Already Exists
         id: check-tag
         run: |
+          dobuild=true
+          dorelease=true
           if git rev-parse "refs/tags/${{ env.LATEST_VERSION }}" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "TAG_EXISTS=true" >> $GITHUB_ENV
             echo "Version ${{ env.LATEST_VERSION }} has already been tagged and released."
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+            dobuild=false
+            dorelease=false
           fi
+          [[ "${{ github.event_name }}" == "push" ]] && dobuild=true
+          echo "dobuild=$dobuild" >> $GITHUB_OUTPUT
+          echo "DO_BUILD=$dobuild" >> $GITHUB_ENV
+          echo "dorelease=$dorelease" >> $GITHUB_OUTPUT
+          echo "DO_RELEASE=$dorelease" >> $GITHUB_ENV
 
       - name: Cache generated
-        if: env.TAG_EXISTS == 'false'
+        if: env.DO_BUILD == 'true'
         id: cache-gentoo
         uses: actions/cache@v6
         with:
@@ -59,7 +64,7 @@ jobs:
           key: gentoo-ipxe-${{ env.LATEST_VERSION }}
 
       - name: Get working version of isoinfo and other tools installed
-        if: env.TAG_EXISTS == 'false' && steps.cache-gentoo.outputs.cache-hit != 'true'
+        if: env.DO_BUILD == 'true' && steps.cache-gentoo.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update && sudo apt-get install -y build-essential wget bzip2 pv python3-markdown2
           wget -qO- https://codeberg.org/schilytools/schilytools/releases/download/2024-03-21/schily-2024-03-21.tar.bz2 | tar -xj
@@ -68,7 +73,7 @@ jobs:
           sudo cp $(find -name isoinfo -type f | head -n 1) /usr/bin/isoinfo
 
       - name: Execute Download and Unpack Routines
-        if: env.TAG_EXISTS == 'false' && steps.cache-gentoo.outputs.cache-hit != 'true'
+        if: env.DO_BUILD == 'true' && steps.cache-gentoo.outputs.cache-hit != 'true'
         run: |
           ./get_minimal_cd.sh || exit 1
           ./gentoocd_unpack.sh || exit 1
@@ -78,7 +83,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs: generate
-    if: needs.generate.outputs.tag_exists == 'false'
+    if: needs.generate.outputs.dobuild == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -152,8 +157,8 @@ jobs:
       - name: Build Release
         run: |
           VERSION="${{ needs.generate.outputs.latest_version }}"
+          [[ "${{ needs.generate.outputs.dorelease }}" == "true" ]] && ghcmd="gh" || ghcmd="echo gh"
           echo "Tagging repository and deploying production release assets for version: $VERSION"
-          set -x
 
           ls -l
           sha512sum -c $VERSION.sha512 || exit 1
@@ -171,23 +176,22 @@ jobs:
 
           RELEASE_NOTES="release_notes.md"
           {
-          cat << 'EOF'
-          Automated test ok of Gentoo $VERSION
-          # Note that `boot` is required after chain, since that is no longer included in the script, current contents:
-          ```ipxe
-          EOF
+          echo "Automated test ok of Gentoo $VERSION"
+          echo "## Note: \`boot\` is required after chain, and not included in published script, current contents:"
+          echo "\`\`\`ipxe"
           cat install-amd64-minimal-*.ipxe
-          cat << 'EOF'
-          ```
-          Use `chain ....ipxe` followed by maybe `imgstat` and `boot`
-          It does allow for additional initrd before boot
-          EOF
+          echo "\`\`\`"
+          echo "Use \`chain ....ipxe\` followed by maybe \`imgstat\` and finally \`boot\`"
+          echo "This allows for additional initrds or other customizations."
+          echo "\`\`\`"
+          cat $VERSION.sha512
+          echo "\`\`\`"
           } > "$RELEASE_NOTES"
 
           set -x
           cat "$RELEASE_NOTES" | tee -a "$GITHUB_STEP_SUMMARY"
           ls -l "${RELEASE_FILES[@]}"
-          gh release create "$VERSION" "${RELEASE_FILES[@]}" \
+          $ghcmd release create "$VERSION" "${RELEASE_FILES[@]}" \
             --repo "${{ github.repository }}" \
             --title "Gentoo $VERSION" \
             --notes-file "$RELEASE_NOTES"
