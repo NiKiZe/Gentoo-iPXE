@@ -65,6 +65,9 @@ jobs:
 
       - name: Get working version of isoinfo and other tools installed
         if: env.DO_BUILD == 'true' && steps.cache-gentoo.outputs.cache-hit != 'true'
+        env:
+          CFLAGS: "-Wno-error=implicit-function-declaration -Wno-error=incompatible-pointer-types"
+          CXXFLAGS: "-Wno-error=implicit-function-declaration -Wno-error=incompatible-pointer-types"
         run: |
           sudo apt-get update && sudo apt-get install -y build-essential wget bzip2 pv python3-markdown2
           wget -qO- https://codeberg.org/schilytools/schilytools/releases/download/2024-03-21/schily-2024-03-21.tar.bz2 | tar -xj
