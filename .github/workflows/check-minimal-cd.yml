@@ -17,7 +17,7 @@ env:
 
 jobs:
   generate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       latest_version: ${{ steps.get-version.outputs.version }}
       dobuild: ${{ steps.check-tag.outputs.dobuild }}
@@ -81,7 +81,7 @@ jobs:
           cat index.html
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: generate
     if: needs.generate.outputs.dobuild == 'true'
     strategy:

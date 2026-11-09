@@ -3,7 +3,7 @@ echo $0 Got arguments: $*
 bootfile="boot.ipxe"
 
 USEEFI=""
-VNC="-vnc 127.0.0.1:22"
+VNC="-vnc [::1]:22"
 VGA=""
 efibios=""
 memorygb=4
